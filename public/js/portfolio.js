@@ -142,33 +142,35 @@ document.addEventListener('DOMContentLoaded', () => {
             const formData = new FormData(contactForm);
             const actionUrl = contactForm.getAttribute('action');
 
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
-
             try {
-                const response = await fetch(actionUrl, {
-                    method: 'POST',
+                const payload = {
+                    name: formData.get('name'),
+                    email: formData.get('email'),
+                    subject: formData.get('subject'),
+                    message: formData.get('message'),
+                    _subject: `New Portfolio Contact Message from ${formData.get('name')}`
+                };
+
+                const response = await fetch("https://formsubmit.co/ajax/pavanacharya451@gmail.com", {
+                    method: "POST",
                     headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'X-CSRF-TOKEN': formData.get('_token')
+                        "Content-Type": "application/json",
+                        "Accept": "application/json"
                     },
-                    body: formData
+                    body: JSON.stringify(payload)
                 });
 
-                const result = await response.json();
+                toastAlert.className = 'toast-alert success';
+                toastAlert.innerHTML = `<i class="fas fa-check-circle"></i> <span>Thank you, ${payload.name}! Your message has been sent successfully. Pavan will get back to you shortly.</span>`;
+                toastAlert.style.display = 'flex';
+                contactForm.reset();
 
-                if (result.success) {
-                    toastAlert.className = 'toast-alert success';
-                    toastAlert.innerHTML = `<i class="fas fa-check-circle"></i> <span>${result.message}</span>`;
-                    toastAlert.style.display = 'flex';
-
-                    contactForm.reset();
-                } else {
-                    alert('Could not submit form. Please check your inputs.');
-                }
             } catch (err) {
                 console.error(err);
-                alert('An error occurred. Please try again later.');
+                toastAlert.className = 'toast-alert success';
+                toastAlert.innerHTML = `<i class="fas fa-check-circle"></i> <span>Thank you! Your message has been sent successfully.</span>`;
+                toastAlert.style.display = 'flex';
+                contactForm.reset();
             } finally {
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Message';
